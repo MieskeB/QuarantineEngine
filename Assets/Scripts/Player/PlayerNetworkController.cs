@@ -25,6 +25,8 @@ public class PlayerNetworkController : NetworkBehaviour
 
     private void Update()
     {
+        if (!Camera.main) return;
+        
         Vector3 move = new Vector3(inputMovement.x, 0f, inputMovement.y);
         move = Camera.main.transform.TransformDirection(move);
         move.y = 0f;
