@@ -7,6 +7,7 @@ public class PlayerInputHandler : MonoBehaviour
     private PlayerNetworkController _networkController;
     private PlayerInteract _playerInteract;
     private PlayerInventory _playerInventory;
+    private PlayerInventoryDropper _dropper;
 
     private void Awake()
     {
@@ -14,6 +15,7 @@ public class PlayerInputHandler : MonoBehaviour
         _networkController = GetComponent<PlayerNetworkController>();
         _playerInteract = GetComponent<PlayerInteract>();
         _playerInventory = GetComponent<PlayerInventory>();
+        _dropper = GetComponent<PlayerInventoryDropper>();
     }
 
     private void OnEnable()
@@ -28,6 +30,8 @@ public class PlayerInputHandler : MonoBehaviour
         _inputActions.Player.Slot1.performed += SelectSlot1;
         _inputActions.Player.Slot2.performed += SelectSlot2;
         _inputActions.Player.Slot3.performed += SelectSlot3;
+
+        _inputActions.Player.Drop.performed += OnDrop;
     }
 
     private void OnDisable()
@@ -40,6 +44,8 @@ public class PlayerInputHandler : MonoBehaviour
         _inputActions.Player.Slot1.performed -= SelectSlot1;
         _inputActions.Player.Slot2.performed -= SelectSlot2;
         _inputActions.Player.Slot3.performed -= SelectSlot3;
+        
+        _inputActions.Player.Drop.performed -= OnDrop;
         
         _inputActions.Player.Disable();
     }
@@ -67,5 +73,10 @@ public class PlayerInputHandler : MonoBehaviour
     private void SelectSlot3(InputAction.CallbackContext context)
     {
         _playerInventory.SelectSlot(2);
+    }
+
+    private void OnDrop(InputAction.CallbackContext context)
+    {
+        _dropper.RequestDropSelected();
     }
 }

@@ -12,6 +12,7 @@ public class PlayerInventory : NetworkBehaviour
 
     public static PlayerInventory LocalInstance { get; private set; }
 
+    public static event Action<PlayerInventory> OnLocalInstanceChanged;
     public event Action<int, InventoryItem> OnItemChanged;
     public event Action<int> OnSelectedSlotChanged;
 
@@ -28,6 +29,10 @@ public class PlayerInventory : NetworkBehaviour
         if (IsOwner)
         {
             LocalInstance = this;
+            if (OnLocalInstanceChanged != null)
+            {
+                OnLocalInstanceChanged.Invoke(this);
+            }
         }
 
         selectedSlot.OnValueChanged += HandleSelectedSlotChanged;
@@ -39,6 +44,10 @@ public class PlayerInventory : NetworkBehaviour
         if (LocalInstance == this)
         {
             LocalInstance = null;
+            if (OnLocalInstanceChanged != null)
+            {
+                OnLocalInstanceChanged.Invoke(null);
+            }
         }
     }
 
@@ -128,5 +137,33 @@ public class PlayerInventory : NetworkBehaviour
         }
 
         return true;
+    }
+
+    public InventoryItem RemoveItemAtSlot(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= items.Count)
+        {
+            return null;
+        }
+
+        InventoryItem removedItem = items[slotIndex];
+        if (removedItem == null)
+        {
+            return null;
+        }
+
+        items[slotIndex] = null;
+        if (OnItemChanged != null)
+        {
+            OnItemChanged.Invoke(slotIndex, null);
+        }
+
+        return removedItem;
+    }
+
+    public InventoryItem RemoveSelectedItem()
+    {
+        int slotIndex = selectedSlot.Value;
+        return RemoveItemAtSlot(slotIndex);
     }
 }
