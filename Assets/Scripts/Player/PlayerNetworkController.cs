@@ -1,6 +1,5 @@
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerNetworkController : NetworkBehaviour
@@ -26,7 +25,7 @@ public class PlayerNetworkController : NetworkBehaviour
     private void Update()
     {
         if (!Camera.main) return;
-        
+
         Vector3 move = new Vector3(inputMovement.x, 0f, inputMovement.y);
         move = Camera.main.transform.TransformDirection(move);
         move.y = 0f;
@@ -34,8 +33,8 @@ public class PlayerNetworkController : NetworkBehaviour
         _characterController.Move(move * moveSpeed * Time.deltaTime);
     }
 
-    public void OnMove(InputAction.CallbackContext context)
+    public void OnMove(Vector2 direction)
     {
-        inputMovement = context.ReadValue<Vector2>();
+        inputMovement = direction;
     }
 }

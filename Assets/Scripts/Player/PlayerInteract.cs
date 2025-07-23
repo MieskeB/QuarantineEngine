@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerInteract : MonoBehaviour
 {
@@ -15,7 +12,7 @@ public class PlayerInteract : MonoBehaviour
         playerCamera = Camera.main;
     }
 
-    public void TryInteract(InputAction.CallbackContext context)
+    public void TryInteract()
     {
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
 
