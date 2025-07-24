@@ -1,4 +1,3 @@
-using System;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -33,6 +32,7 @@ public class KeypadController : MonoBehaviour, IInteractable
             {
                 return;
             }
+
             if (item.itemName == "Tape")
             {
                 TryHotWire();
@@ -46,7 +46,7 @@ public class KeypadController : MonoBehaviour, IInteractable
             {
                 return;
             }
-            
+
             inventory.RemoveSelectedItem();
         }
     }
@@ -74,7 +74,7 @@ public class KeypadController : MonoBehaviour, IInteractable
         {
             return;
         }
-        
+
         connectedDoor.Open();
         isHotWired = true;
     }
@@ -96,7 +96,7 @@ public class KeypadController : MonoBehaviour, IInteractable
         {
             return false;
         }
-        
+
         if (connectedDoor != null)
         {
             return connectedDoor.TryUnlock(code);
