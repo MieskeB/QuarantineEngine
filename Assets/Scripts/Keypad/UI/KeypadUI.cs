@@ -40,6 +40,7 @@ public class KeypadUI : MonoBehaviour
     {
         if (controller.TryUnscrewPanel())
         {
+            OnClose();
             Debug.Log("Unscrewed!");
         }
         else

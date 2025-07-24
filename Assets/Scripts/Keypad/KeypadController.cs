@@ -5,9 +5,11 @@ using UnityEngine;
 public class KeypadController : MonoBehaviour, IInteractable
 {
     [SerializeField] private Transform cameraFocusPoint;
-    // [SerializeField] private GameObject keypadUIPrefab;
     [SerializeField] private bool isPanelUnscrewed = false;
     [SerializeField] private DoorController connectedDoor;
+
+    private bool isHotWired = false;
+    private bool isRaspberryPi = false;
 
     public void Interact()
     {
@@ -15,11 +17,38 @@ public class KeypadController : MonoBehaviour, IInteractable
         {
             return;
         }
-        
-        MouseLook look = FindObjectOfType<MouseLook>();
-        look.EnterFocusMode(cameraFocusPoint);
-        
-        KeypadUIManager.Instance.OpenKeypad(this);
+
+        if (!isPanelUnscrewed)
+        {
+            MouseLook look = FindObjectOfType<MouseLook>();
+            look.EnterFocusMode(cameraFocusPoint);
+
+            KeypadUIManager.Instance.OpenKeypad(this);
+        }
+        else
+        {
+            PlayerInventory inventory = PlayerInventory.LocalInstance;
+            InventoryItem item = inventory.GetSelectedItem();
+            if (item == null)
+            {
+                return;
+            }
+            if (item.itemName == "Tape")
+            {
+                TryHotWire();
+            }
+            else if (item.itemName == "Raspberry Pi")
+            {
+                Debug.Log("Installed Raspberry Pi");
+                // TryInstallRaspberryPi();
+            }
+            else
+            {
+                return;
+            }
+            
+            inventory.RemoveSelectedItem();
+        }
     }
 
     public bool TryUnscrewPanel()
@@ -32,29 +61,22 @@ public class KeypadController : MonoBehaviour, IInteractable
 
         if (PlayerInventory.LocalInstance.ContainsItem("Screwdriver"))
         {
-            UnscrewPanel();
+            isPanelUnscrewed = true;
             return true;
         }
 
         return false;
     }
 
-    public void UnscrewPanel()
+    private void TryHotWire()
     {
-        isPanelUnscrewed = true;
-    }
-
-    public void TryHotWire(bool hasDuctTape)
-    {
-        if (!isPanelUnscrewed)
+        if (!isPanelUnscrewed || isRaspberryPi)
         {
             return;
         }
-
-        if (hasDuctTape)
-        {
-            connectedDoor.Open();
-        }
+        
+        connectedDoor.Open();
+        isHotWired = true;
     }
 
     public void TryInstallRaspberryPi(ProgrammableDevice device)
@@ -65,6 +87,7 @@ public class KeypadController : MonoBehaviour, IInteractable
         }
 
         // connectedDoor.AssignAutomation(device);
+        isRaspberryPi = true;
     }
 
     public bool SubmitCode(string code)
