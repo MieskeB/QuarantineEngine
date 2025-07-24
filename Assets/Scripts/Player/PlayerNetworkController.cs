@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerNetworkController : NetworkBehaviour
 {
     private CharacterController _characterController;
+    private MouseLook _mouseLook;
     private Vector2 inputMovement;
 
     [SerializeField] private float moveSpeed = 5f;
@@ -12,6 +13,7 @@ public class PlayerNetworkController : NetworkBehaviour
     private void Awake()
     {
         _characterController = GetComponent<CharacterController>();
+        _mouseLook = GetComponent<MouseLook>();
     }
 
     public override void OnNetworkSpawn()
@@ -24,8 +26,13 @@ public class PlayerNetworkController : NetworkBehaviour
 
     private void Update()
     {
-        if (!Camera.main) return;
+        if (!IsOwner || !Camera.main) return;
 
+        if (_mouseLook.IsCameraFrozen)
+        {
+            return;
+        }
+        
         Vector3 move = new Vector3(inputMovement.x, 0f, inputMovement.y);
         move = Camera.main.transform.TransformDirection(move);
         move.y = 0f;
