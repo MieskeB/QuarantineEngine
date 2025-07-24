@@ -32,6 +32,10 @@ public class PlayerInputHandler : MonoBehaviour
         _inputActions.Player.Slot3.performed += SelectSlot3;
 
         _inputActions.Player.Drop.performed += OnDrop;
+
+        _inputActions.Player.Jump.performed += OnJump;
+        _inputActions.Player.Crouch.performed += OnCrouch;
+        _inputActions.Player.Crouch.canceled += OnCrouch;
     }
 
     private void OnDisable()
@@ -46,6 +50,10 @@ public class PlayerInputHandler : MonoBehaviour
         _inputActions.Player.Slot3.performed -= SelectSlot3;
         
         _inputActions.Player.Drop.performed -= OnDrop;
+        
+        _inputActions.Player.Jump.performed -= OnJump;
+        _inputActions.Player.Crouch.performed -= OnCrouch;
+        _inputActions.Player.Crouch.canceled -= OnCrouch;
         
         _inputActions.Player.Disable();
     }
@@ -78,5 +86,16 @@ public class PlayerInputHandler : MonoBehaviour
     private void OnDrop(InputAction.CallbackContext context)
     {
         _dropper.RequestDropSelected();
+    }
+
+    private void OnJump(InputAction.CallbackContext context)
+    {
+        _networkController.OnJump();
+    }
+
+    private void OnCrouch(InputAction.CallbackContext context)
+    {
+        bool isPressed = context.ReadValue<float>() > 0.1f;
+        _networkController.OnCrouch(isPressed);
     }
 }
