@@ -1,18 +1,20 @@
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 
-[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(Rigidbody))]
 public class PlayerNetworkController : NetworkBehaviour
 {
-    private CharacterController _characterController;
+    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float rotationSpeed = 10f;
+
+    private Rigidbody _rb;
     private MouseLook _mouseLook;
     private Vector2 inputMovement;
-
-    [SerializeField] private float moveSpeed = 5f;
-
+    
     private void Awake()
     {
-        _characterController = GetComponent<CharacterController>();
+        _rb = GetComponent<Rigidbody>();
         _mouseLook = GetComponent<MouseLook>();
     }
 
@@ -21,23 +23,26 @@ public class PlayerNetworkController : NetworkBehaviour
         if (!IsOwner)
         {
             enabled = false;
+            _rb.isKinematic = true;
         }
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        if (!IsOwner || !Camera.main) return;
-
-        if (_mouseLook.IsCameraFrozen)
+        if (!IsOwner || _mouseLook == null || _mouseLook.IsCameraFrozen)
         {
             return;
         }
         
-        Vector3 move = new Vector3(inputMovement.x, 0f, inputMovement.y);
-        move = Camera.main.transform.TransformDirection(move);
-        move.y = 0f;
+        Vector3 moveInput = new Vector3(inputMovement.x, 0f, inputMovement.y);
+        Vector3 moveDirection = Camera.main.transform.TransformDirection(moveInput);
+        moveDirection.y = 0f;
+        moveDirection.Normalize();
 
-        _characterController.Move(move * moveSpeed * Time.deltaTime);
+        Vector3 velocity = moveDirection * moveSpeed;
+        Vector3 targetVelocity = new Vector3(velocity.x, _rb.velocity.y, velocity.z); // keep gravity
+
+        _rb.velocity = targetVelocity;
     }
 
     public void OnMove(Vector2 direction)
