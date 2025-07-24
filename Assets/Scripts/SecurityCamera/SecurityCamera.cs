@@ -29,6 +29,7 @@ public class SecurityCamera : NetworkBehaviour, IInteractable, IPoweredDevice
     public Camera UnityCamera => cam;
     public RenderTexture Render => renderTexture;
     public float PowerConsumption => powerConsumption;
+    public bool isOn => isCameraOn.Value;
 
     private void Start()
     {

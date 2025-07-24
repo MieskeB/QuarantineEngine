@@ -6,12 +6,13 @@ using UnityEngine.UI;
 public class SecurityMonitor : NetworkBehaviour, IInteractable
 {
     [SerializeField] private RawImage screen;
-    [SerializeField] private List<SecurityCamera> availableCameras;
+    private List<SecurityCamera> availableCameras;
 
     private NetworkVariable<int> currentCameraIndex = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     private void Start()
     {
+        availableCameras = new List<SecurityCamera>(FindObjectsOfType<SecurityCamera>());
         currentCameraIndex.OnValueChanged += UpdateCameraFeed;
         UpdateCameraFeed(0, currentCameraIndex.Value);
     }
@@ -34,16 +35,41 @@ public class SecurityMonitor : NetworkBehaviour, IInteractable
     [ServerRpc(RequireOwnership = false)]
     private void RequestCameraChangeServerRpc(ServerRpcParams rpcParams = default)
     {
-        int nextIndex = (currentCameraIndex.Value + 1) % availableCameras.Count;
-        currentCameraIndex.Value = nextIndex;
+        int nextIndex = currentCameraIndex.Value;
+        int totalCameras = availableCameras.Count;
+
+        for (int i = 0; i < totalCameras; i++)
+        {
+            nextIndex = (nextIndex + 1) % totalCameras;
+            if (availableCameras[nextIndex].isOn)
+            {
+                currentCameraIndex.Value = nextIndex;
+                break;
+            }
+        }
     }
 
     public void Interact()
     {
+        if (availableCameras == null || availableCameras.Count == 0)
+        {
+            return;
+        }
+        
         if (IsServer)
         {
-            int nextIndex = (currentCameraIndex.Value + 1) % availableCameras.Count;
-            currentCameraIndex.Value = nextIndex;
+            int nextIndex = currentCameraIndex.Value;
+            int totalCameras = availableCameras.Count;
+
+            for (int i = 0; i < totalCameras; i++)
+            {
+                nextIndex = (nextIndex + 1) % totalCameras;
+                if (availableCameras[nextIndex].isOn)
+                {
+                    currentCameraIndex.Value = nextIndex;
+                    break;
+                }
+            }
         }
         else
         {
