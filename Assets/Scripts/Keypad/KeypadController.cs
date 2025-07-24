@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -21,6 +20,23 @@ public class KeypadController : MonoBehaviour, IInteractable
         look.EnterFocusMode(cameraFocusPoint);
         
         KeypadUIManager.Instance.OpenKeypad(this);
+    }
+
+    public bool TryUnscrewPanel()
+    {
+        if (isPanelUnscrewed)
+        {
+            Debug.LogWarning("Panel is already unscrewed.");
+            return false;
+        }
+
+        if (PlayerInventory.LocalInstance.ContainsItem("Screwdriver"))
+        {
+            UnscrewPanel();
+            return true;
+        }
+
+        return false;
     }
 
     public void UnscrewPanel()
@@ -53,6 +69,11 @@ public class KeypadController : MonoBehaviour, IInteractable
 
     public bool SubmitCode(string code)
     {
+        if (isPanelUnscrewed)
+        {
+            return false;
+        }
+        
         if (connectedDoor != null)
         {
             return connectedDoor.TryUnlock(code);

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -116,6 +117,11 @@ public class PlayerInventory : NetworkBehaviour
         }
 
         return items[slotIndex];
+    }
+
+    public bool ContainsItem(string itemName)
+    {
+        return items.Where(item => item != null).Any(item => item.itemName == itemName);
     }
 
     public bool ClearSlot(int slotIndex)

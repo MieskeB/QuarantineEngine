@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -30,11 +28,28 @@ public class KeypadUI : MonoBehaviour
     {
         if (controller.SubmitCode(currentInput))
         {
-            KeypadUIManager.Instance.CloseKeypad();
+            OnClose();
         }
         else
         {
             OnClear();
         }
+    }
+
+    public void Unscrew()
+    {
+        if (controller.TryUnscrewPanel())
+        {
+            Debug.Log("Unscrewed!");
+        }
+        else
+        {
+            Debug.Log("No screwdriver in inventory");
+        }
+    }
+
+    public void OnClose()
+    {
+        KeypadUIManager.Instance.CloseKeypad();
     }
 }
