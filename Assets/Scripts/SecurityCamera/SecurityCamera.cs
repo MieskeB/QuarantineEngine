@@ -1,7 +1,8 @@
+using System;
 using Unity.Netcode;
 using UnityEngine;
 
-public class SecurityCamera : NetworkBehaviour
+public class SecurityCamera : NetworkBehaviour, IInteractable
 {
     [Header("Camera settings")]
     [SerializeField] private Camera cam;
@@ -18,19 +19,47 @@ public class SecurityCamera : NetworkBehaviour
 
     private float currentAngle;
     private int direction = 1;
+    
+    private NetworkVariable<bool> isCameraOn = new NetworkVariable<bool>(
+        value: false,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server
+    );
 
     public Camera UnityCamera => cam;
     public RenderTexture Render => renderTexture;
 
-    public void ToggleCamera(bool isOn)
+    private void Start()
     {
+        isCameraOn.OnValueChanged += HandleCameraStateChanged;
+        ToggleCamera(isCameraOn.Value);
+    }
+
+    public override void OnDestroy()
+    {
+        base.OnDestroy();
+        isCameraOn.OnValueChanged -= HandleCameraStateChanged;
+    }
+
+    private void HandleCameraStateChanged(bool previous, bool current)
+    {
+        ToggleCamera(current);
+    }
+
+    private void ToggleCamera(bool isOn)
+    {
+        if (cam == null)
+        {
+            return;
+        }
+        
         cam.enabled = isOn;
         cam.targetTexture = isOn ? renderTexture : null;
     }
 
     private void Update()
     {
-        if (!rotateAutomatically || rotationPivot == null)
+        if (!rotateAutomatically || rotationPivot == null || !isCameraOn.Value)
         {
             return;
         }
@@ -48,5 +77,28 @@ public class SecurityCamera : NetworkBehaviour
     public void SetAutoRotate(bool enable)
     {
         rotateAutomatically = enable;
+    }
+
+    public void Interact()
+    {
+        if (IsServer)
+        {
+            ToggleCamera();
+        }
+        else
+        {
+            RequestToggleCameraServerRpc();
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void RequestToggleCameraServerRpc(ServerRpcParams rpcParams = default)
+    {
+        ToggleCamera();
+    }
+
+    private void ToggleCamera()
+    {
+        isCameraOn.Value = !isCameraOn.Value;
     }
 }

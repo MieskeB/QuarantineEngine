@@ -75,6 +75,7 @@ public class KeypadController : MonoBehaviour, IInteractable
             return;
         }
 
+        connectedDoor.StopCloseTimer();
         connectedDoor.Open();
         isHotWired = true;
     }

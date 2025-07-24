@@ -372,6 +372,7 @@ MonoBehaviour:
   playerBody: {fileID: 1294929298593023168}
   cameraHolder: {fileID: 8915081475030635290}
   mouseSensitivity: 100
+  cameraLerpSpeed: 10
 --- !u!114 &5467603760654147702
 MonoBehaviour:
   m_ObjectHideFlags: 0
