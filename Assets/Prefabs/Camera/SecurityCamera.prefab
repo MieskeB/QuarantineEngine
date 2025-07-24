@@ -282,7 +282,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 464553367
+  GlobalObjectIdHash: 2685216881
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -305,7 +305,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cam: {fileID: 1488854019770361985}
   renderTexture: {fileID: 8400000, guid: d393c0b0a1631e140b1692cd0b6a00d8, type: 2}
-  powerConsumption: 1
+  powerConsumption: 2
   rotationPivot: {fileID: 5732701028723524958}
   rotationSpeed: 30
   leftLimit: -45

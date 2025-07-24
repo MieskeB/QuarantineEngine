@@ -2,12 +2,12 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 
-public class SecurityCamera : NetworkBehaviour, IInteractable
+public class SecurityCamera : NetworkBehaviour, IInteractable, IPoweredDevice
 {
     [Header("Camera settings")]
     [SerializeField] private Camera cam;
     [SerializeField] private RenderTexture renderTexture;
-    [SerializeField] private float powerConsumption = 1f;
+    [SerializeField] private float powerConsumption = 2f;
 
     [Header("Rotation settings")] [SerializeField]
     private Transform rotationPivot;
@@ -28,6 +28,7 @@ public class SecurityCamera : NetworkBehaviour, IInteractable
 
     public Camera UnityCamera => cam;
     public RenderTexture Render => renderTexture;
+    public float PowerConsumption => powerConsumption;
 
     private void Start()
     {
@@ -99,6 +100,23 @@ public class SecurityCamera : NetworkBehaviour, IInteractable
 
     private void ToggleCamera()
     {
-        isCameraOn.Value = !isCameraOn.Value;
+        SetPowered(!isCameraOn.Value);
+    }
+
+    private void SetPowered(bool on)
+    {
+        if (on)
+        {
+            if (IsServer && PowerManager.Instance.CanUsePower(powerConsumption))
+            {
+                PowerManager.Instance.RegisterDevice(this);
+                isCameraOn.Value = true;
+            }
+        }
+        else
+        {
+            PowerManager.Instance.UnregisterDevice(this);
+            isCameraOn.Value = false;
+        }
     }
 }

@@ -2,12 +2,13 @@ using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
-public class DoorController : NetworkBehaviour
+public class DoorController : NetworkBehaviour, IPoweredDevice
 {
     [SerializeField] private Transform doorTransform;
     [SerializeField] private Vector3 openPosition;
     [SerializeField] private Vector3 closedPosition;
     [SerializeField] private float openSpeed = 2f;
+    [SerializeField] private float powerConsumption = 2f;
 
     [SerializeField] private string code = "1234";
     [SerializeField] private float doorTimer = 7f;
@@ -15,6 +16,8 @@ public class DoorController : NetworkBehaviour
     private NetworkVariable<bool> isOpen = new NetworkVariable<bool>(false);
     
     private Coroutine autoCloseCoroutine;
+
+    public float PowerConsumption => powerConsumption;
 
     private void Update()
     {
@@ -24,25 +27,41 @@ public class DoorController : NetworkBehaviour
 
     public void ToggleDoor()
     {
-        if (IsServer)
+        if (!IsServer)
         {
-            isOpen.Value = !isOpen.Value;
+            ToggleDoorServerRpc();
+            return;
+        }
+
+        if (!isOpen.Value)
+        {
+            if (!PowerManager.Instance.CanUsePower(powerConsumption))
+            {
+                return;
+            }
+
+            PowerManager.Instance.RegisterDevice(this);
         }
         else
         {
-            ToggleDoorServerRpc();
+            PowerManager.Instance.UnregisterDevice(this);
         }
+        
+        isOpen.Value = !isOpen.Value;
     }
 
     public void Open()
     {
-        if (IsServer)
-        {
-            isOpen.Value = true;
-        }
-        else
+        if (!IsServer)
         {
             OpenDoorServerRpc();
+            return;
+        }
+
+        if (!isOpen.Value && PowerManager.Instance.CanUsePower(powerConsumption))
+        {
+            PowerManager.Instance.RegisterDevice(this);
+            isOpen.Value = true;
         }
     }
 
@@ -52,14 +71,16 @@ public class DoorController : NetworkBehaviour
         {
             return false;
         }
+        
+        bool wasToggledOpen = isOpen.Value == false;
 
         ToggleDoor();
 
-        if (IsServer)
+        if (IsServer && wasToggledOpen && isOpen.Value == true)
         {
             StartAutoCloseTimer();
         }
-        else
+        else if (!IsServer && wasToggledOpen && isOpen.Value == true)
         {
             StartAutoCloseServerRpc();
         }
@@ -80,7 +101,12 @@ public class DoorController : NetworkBehaviour
     private IEnumerator AutoCloseAfterDelay()
     {
         yield return new WaitForSeconds(doorTimer);
-        isOpen.Value = false;
+
+        if (isOpen.Value)
+        {
+            isOpen.Value = false;
+            PowerManager.Instance.UnregisterDevice(this);
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
