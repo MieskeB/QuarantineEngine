@@ -7,6 +7,11 @@ public class KeypadController : MonoBehaviour, IInteractable
     [SerializeField] private bool isPanelUnscrewed = false;
     [SerializeField] private DoorController connectedDoor;
 
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip clickSound;
+    [SerializeField] private AudioClip successSound;
+    [SerializeField] private AudioClip failureSound;
+
     private bool isHotWired = false;
     private bool isRaspberryPi = false;
 
@@ -105,5 +110,39 @@ public class KeypadController : MonoBehaviour, IInteractable
 
         Debug.LogError("No door is connected to this device");
         return false;
+    }
+    
+    public void PlayClickSound()
+    {
+        PlaySoundClientRpc(0);
+    }
+
+    public void PlaySuccessSound()
+    {
+        PlaySoundClientRpc(1);
+    }
+
+    public void PlayFailureSound()
+    {
+        PlaySoundClientRpc(2);
+    }
+    
+    [ClientRpc]
+    private void PlaySoundClientRpc(int soundId)
+    {
+        if (audioSource == null) return;
+
+        AudioClip clip = soundId switch
+        {
+            0 => clickSound,
+            1 => successSound,
+            2 => failureSound,
+            _ => null
+        };
+
+        if (clip != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
     }
 }

@@ -1,9 +1,17 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
 public class KeypadUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI displayText;
+
+    [SerializeField] private Color defaultColor = Color.white;
+    [SerializeField] private Color successColor = Color.green;
+    [SerializeField] private Color failureColor = Color.red;
+
+    [SerializeField] private float feedbackDuration = 1f;
+    
     private string currentInput;
     private KeypadController controller;
 
@@ -16,6 +24,8 @@ public class KeypadUI : MonoBehaviour
     {
         currentInput += number;
         displayText.text = currentInput;
+        
+        controller.PlayClickSound();
     }
 
     public void OnClear()
@@ -28,13 +38,36 @@ public class KeypadUI : MonoBehaviour
     {
         if (controller.SubmitCode(currentInput))
         {
-            OnClose();
+            controller.PlaySuccessSound();
+            StartCoroutine(HandleFeedback(successColor, true));
+        }
+        else
+        {
+            controller.PlayFailureSound();
+            StartCoroutine(HandleFeedback(failureColor, false));
+        }
+    }
+    
+    private IEnumerator HandleFeedback(Color color, bool success)
+    {
+        if (displayText != null)
+        {
+            displayText.color = color;
+        }
+
+        yield return new WaitForSeconds(feedbackDuration);
+
+        if (success)
+        {
+            OnClose(); // Correct code closes UI
         }
         else
         {
             OnClear();
+            displayText.color = defaultColor;
         }
     }
+
 
     public void Unscrew()
     {

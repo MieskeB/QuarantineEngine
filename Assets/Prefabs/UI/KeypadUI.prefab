@@ -1963,6 +1963,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   displayText: {fileID: 4911616135802095801}
+  audioSource: {fileID: 0}
+  clickSound: {fileID: 8300000, guid: ecbd655d0bfb4454a9b51d0bdc6eef0f, type: 3}
+  successSound: {fileID: 0}
+  failureSound: {fileID: 0}
+  defaultColor: {r: 0, g: 0, b: 0, a: 1}
+  successColor: {r: 0, g: 1, b: 0, a: 1}
+  failureColor: {r: 1, g: 0, b: 0, a: 1}
+  feedbackDuration: 1
 --- !u!1 &3591524058093120966
 GameObject:
   m_ObjectHideFlags: 0
