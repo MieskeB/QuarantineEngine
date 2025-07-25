@@ -1,16 +1,38 @@
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.AI;
 
+[RequireComponent(typeof(NavMeshAgent))]
 public class SanitizerMist : NetworkBehaviour, IAnomalyEffect
 {
+    [Header("Mist Settings")]
     [SerializeField] private float depletionRate = 1f;
     [SerializeField] private float maxTimeInMist = 5f;
+
+    [Header("Roaming Settings")] 
+    [SerializeField] private float roamRadius = 10f;
+    [SerializeField] private float minRoamInterval = 3f;
+    [SerializeField] private float maxRoamInterval = 6f;
 
     private readonly Dictionary<GameObject, float> exposureTimers = new();
     private readonly HashSet<GameObject> _affectedObjects = new();
 
+    private NavMeshAgent agent;
+    private float roamTimer;
+
+    private void Awake()
+    {
+        agent = GetComponent<NavMeshAgent>();
+    }
+
+    private void Start()
+    {
+        if (!IsServer) return;
+
+        ScheduleNextRoam();
+    }
+    
     private void OnTriggerEnter(Collider other)
     {
         if (!IsServer || !other.CompareTag("Player")) return;
@@ -29,6 +51,7 @@ public class SanitizerMist : NetworkBehaviour, IAnomalyEffect
 
         float deltaTime = Time.deltaTime;
 
+        // Apply effects
         foreach (GameObject obj in _affectedObjects)
         {
             ApplyEffect(obj, deltaTime);
@@ -41,6 +64,36 @@ public class SanitizerMist : NetworkBehaviour, IAnomalyEffect
                 RemoveEffect(obj);
             }
         }
+
+        // Roaming behavior
+        roamTimer -= deltaTime;
+        if (roamTimer <= 0f)
+        {
+            Vector3 randomDestination = GetRandomNavMeshLocation(transform.position, roamRadius);
+            agent.SetDestination(randomDestination);
+            ScheduleNextRoam();
+        }
+    }
+
+    private void ScheduleNextRoam()
+    {
+        roamTimer = Random.Range(minRoamInterval, maxRoamInterval);
+    }
+
+    private Vector3 GetRandomNavMeshLocation(Vector3 origin, float radius)
+    {
+        for (int i = 0; i < 10; i++) // Try max 10 times to find a point
+        {
+            Vector3 randomDirection = Random.insideUnitSphere * radius;
+            randomDirection += origin;
+
+            if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, radius, NavMesh.AllAreas))
+            {
+                return hit.position;
+            }
+        }
+
+        return origin; // fallback to current position
     }
 
     public void ApplyEffect(GameObject target, float deltaTime)
