@@ -55,6 +55,11 @@ public class SanitizerMist : NetworkBehaviour, IAnomalyEffect
         foreach (GameObject obj in _affectedObjects)
         {
             ApplyEffect(obj, deltaTime);
+
+            if (obj.TryGetComponent(out PlayerAudioController audioController))
+            {
+                audioController.TryCough();
+            }
         }
 
         foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Player"))

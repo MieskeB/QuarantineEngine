@@ -73,8 +73,8 @@ public class KeypadUI : MonoBehaviour
     {
         if (controller.TryUnscrewPanel())
         {
+            controller.PlayUnscrewSound();
             OnClose();
-            Debug.Log("Unscrewed!");
         }
         else
         {

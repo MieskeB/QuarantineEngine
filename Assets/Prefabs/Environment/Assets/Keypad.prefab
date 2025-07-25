@@ -126,6 +126,7 @@ MonoBehaviour:
   clickSound: {fileID: 8300000, guid: ecbd655d0bfb4454a9b51d0bdc6eef0f, type: 3}
   successSound: {fileID: 8300000, guid: 9e384438e3a2ff04f9fef5fd4b67ecb7, type: 3}
   failureSound: {fileID: 8300000, guid: fac0bb2aff329e342ac03df70768c903, type: 3}
+  unscrewSound: {fileID: 8300000, guid: 1fabba6361bb4ff4c9caac54b8933069, type: 3}
 --- !u!82 &6870098382264813587
 AudioSource:
   m_ObjectHideFlags: 0
@@ -182,7 +183,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0

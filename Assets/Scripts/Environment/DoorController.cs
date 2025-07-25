@@ -131,7 +131,11 @@ public class DoorController : NetworkBehaviour, IPoweredDevice
     {
         if (IsServer)
         {
-            StopCoroutine(autoCloseCoroutine);
+            if (autoCloseCoroutine != null)
+            {
+                StopCoroutine(autoCloseCoroutine);
+                autoCloseCoroutine = null;
+            }
         }
         else
         {
@@ -142,6 +146,9 @@ public class DoorController : NetworkBehaviour, IPoweredDevice
     [ServerRpc(RequireOwnership = false)]
     private void StopCloseTimerServerRpc()
     {
-        StopCoroutine(autoCloseCoroutine);
+        if (autoCloseCoroutine != null)
+        {
+            StopCoroutine(autoCloseCoroutine);
+        }
     }
 }

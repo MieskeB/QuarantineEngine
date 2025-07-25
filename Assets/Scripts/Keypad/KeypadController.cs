@@ -11,6 +11,7 @@ public class KeypadController : MonoBehaviour, IInteractable
     [SerializeField] private AudioClip clickSound;
     [SerializeField] private AudioClip successSound;
     [SerializeField] private AudioClip failureSound;
+    [SerializeField] private AudioClip unscrewSound;
 
     private bool isHotWired = false;
     private bool isRaspberryPi = false;
@@ -126,6 +127,11 @@ public class KeypadController : MonoBehaviour, IInteractable
     {
         PlaySoundClientRpc(2);
     }
+
+    public void PlayUnscrewSound()
+    {
+        PlaySoundClientRpc(3);
+    }
     
     [ClientRpc]
     private void PlaySoundClientRpc(int soundId)
@@ -137,6 +143,7 @@ public class KeypadController : MonoBehaviour, IInteractable
             0 => clickSound,
             1 => successSound,
             2 => failureSound,
+            3 => unscrewSound,
             _ => null
         };
 
