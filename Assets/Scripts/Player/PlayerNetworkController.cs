@@ -110,4 +110,24 @@ public class PlayerNetworkController : NetworkBehaviour
             isCrouching = false;
         }
     }
+
+    [ServerRpc]
+    public void DieServerRpc()
+    {
+        Die_Internal();
+        DieClientRpc();
+    }
+
+    [ClientRpc]
+    private void DieClientRpc()
+    {
+        // Trigger visual effects, disable input, show UI, etc.
+    }
+
+    private void Die_Internal()
+    {
+        Debug.Log("You deed");
+        // Handle actual death logic: disable controller, mark as dead, respawn etc.
+    }
+
 }
